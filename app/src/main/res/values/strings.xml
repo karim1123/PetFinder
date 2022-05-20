@@ -1,0 +1,73 @@
+<resources>
+    <string name="app_name">pets_finder</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_logout">Logout</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+
+    <string name="email">email</string>
+    <string name="password">password</string>
+    <string name="confirm_password">confirm password</string>
+    <string name="signed">signed</string>
+    <string name="already_have_an_account_login">already have an account login</string>
+    <string name="login">login</string>
+    <string name="don_t_have_an_account_sign_in">dont have an account sign in</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="missing_pets">missing pets</string>
+    <string name="found_pets">found pets</string>
+    <string name="pets_looking_for_a_home">pets looking for a home</string>
+    <string name="missing_pet_ads">missing pet ads</string>
+    <string name="feed_with_announcements_of_found_pets">feed with announcements of found pets</string>
+    <string name="feed_with_announcements_of_pets_looking_for_a_new_home">feed with announcements of pets looking for a new home</string>
+    <string name="dog">dog</string>
+    <string name="cat">cat</string>
+    <string name="missing">missing</string>
+    <string name="found_pet">found</string>
+    <string name="homeless">homeless</string>
+    <string name="address">address</string>
+    <string name="new_ad">new ad</string>
+    <string name="save">save</string>
+    <string name="name">name</string>
+    <string name="phone_number">phone number</string>
+    <string name="successfully_singed_up">Successfully Singed Up</string>
+    <string name="singed_up_failed">Singed Up Failed!</string>
+    <string name="all_fields_must_be_filled">All fields must be filled</string>
+    <string name="password_and_confirm_password_do_not_match">Password and Confirm Password do not match</string>
+    <string name="user_added_to_db">User added to db</string>
+    <string name="db_error">DB error</string>
+    <string name="successfully_logged_In">Successfully Logged In</string>
+    <string name="log_in_failed">Log In failed</string>
+    <string name="advertisement_successfully_saved">Advertisement successfully saved</string>
+    <string name="failed">Failed</string>
+    <string name="empty_string">Empty Strings</string>
+    <string name="please_wait">Please wait</string>
+    <string name="login_fragment_title">Login</string>
+    <string name="registration_fragment_title">Registration</string>
+    <string name="advertisement_list_fragment_title">Advertisement List</string>
+    <string name="advertisement_details_fragment_title">Advertisement details</string>
+    <string name="create_advertisement_fragment_title">Create advertisement</string>
+    <string name="advertisement_list_item_title">%1$s %2$s</string>
+    <string name="advertisement_list_image_storage_path">%1$s/%2$s/0</string>
+    <string name="description">description</string>
+    <string name="ok">OK</string>
+    <string name="storage_access_required">Storage access is required to select the advertisement photos.</string>
+    <string name="storage_permission_not_available">Storage is not available. Requesting storage permission.</string>
+    <string name="storage_permission_denied">Storage permission request was denied.</string>
+    <string name="advertisement_created">Advertisement  successfully created.</string>
+    <string name="create_advertisement_button">create advertisement button</string>
+    <string name="pet_photo">pet photo</string>
+    <string name="image_content_type">image/*</string>
+    <string name="select_images">select images</string>
+    <string name="cancel_image_button">cancel image button</string>
+    <string name="selected_image">selected image</string>
+
+
+    <string-array name="advertisement_list_tabs_name">
+        <item>missing pets</item>
+        <item>found pets</item>
+        <item>pets looking for a home</item>
+    </string-array>
+
+
+</resources>
