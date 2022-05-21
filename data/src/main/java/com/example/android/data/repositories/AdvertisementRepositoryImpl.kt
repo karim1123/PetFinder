@@ -2,7 +2,9 @@ package com.example.android.data.repositories
 
 import android.net.Uri
 import com.example.android.data.utils.RepositoriesNames
+import com.example.android.data.utils.advertisementDetailsSafeCall
 import com.example.android.data.utils.createAdvertisementSafeCall
+import com.example.android.domain.common.AdvertisementDetailsUiState
 import com.example.android.domain.common.CreateAdvertisementUiState
 import com.example.android.domain.entities.AdvertisementModel
 import com.example.android.domain.repositories.AdvertisementRepository
@@ -39,24 +41,58 @@ class AdvertisementRepositoryImpl(
         return withContext(dispatcher) {
             createAdvertisementSafeCall {
                 val key = databaseReference.push().key.toString()
+                advertisementModel.advertisementId = key
                 val storageReference =
                     storage.getReference("/${RepositoriesNames.images.name}/$key")
-                advertisementModel.advertisementId = key
                 // загрузка картинок в firebase storage и получение их url
                 for (index in imagesUris.indices) {
                     async(dispatcher) {
                         storageReference.child(index.toString())
-                            .putFile(Uri.parse(imagesUris[index]))
-                            .addOnCompleteListener {
-                                it.result.storage.downloadUrl.addOnSuccessListener { uri ->
-                                    advertisementModel.urisList.add(uri.toString())
-                                }
+                            .putFile(Uri.parse(imagesUris[index])).addOnCompleteListener {
                             }.await()
                     }
                 }
                 CreateAdvertisementUiState.Success(
                     advertisement = advertisementModel
                 )
+            }
+        }
+    }
+
+    override suspend fun getImagesUris(
+        advertisement: AdvertisementModel,
+        size: Int
+    ): CreateAdvertisementUiState =
+        withContext(dispatcher) {
+            createAdvertisementSafeCall {
+                val storageReference = storage.getReference(
+                    "/${RepositoriesNames.images.name}/${advertisement.advertisementId}"
+                )
+                for (i in 0..size) {
+                    val imageReference = storageReference.child("$i")
+                    async {
+                        imageReference.downloadUrl.addOnSuccessListener { uri ->
+                            advertisement.urisList.add(uri.toString())
+                        }.await()
+                    }
+                }
+                CreateAdvertisementUiState.Success(advertisement = advertisement, closeFlag = true)
+            }
+        }
+
+    override suspend fun deleteAdvertisement(advertisementId: String): AdvertisementDetailsUiState {
+        return withContext(dispatcher) {
+            advertisementDetailsSafeCall {
+                databaseReference.child(advertisementId).removeValue()
+                val storageRef = storage.getReference(
+                    "/${RepositoriesNames.images.name}"
+                ).child(advertisementId)
+                storageRef.listAll().addOnSuccessListener {
+                    it.items.forEach { image ->
+                        image.delete()
+                    }
+                }
+                AdvertisementDetailsUiState.Success(deleteFlag = true)
             }
         }
     }

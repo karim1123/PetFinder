@@ -2,40 +2,33 @@ package com.example.android.pets_finder.createadvertisement
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.android.data.utils.RepositoriesNames
 import com.example.android.domain.common.CreateAdvertisementUiState
 import com.example.android.domain.entities.AdvertisementModel
-import com.example.android.domain.entities.UserModel
-import com.example.android.domain.usecases.advertisement.AddAdvertisementImagesToStorageUseCase
-import com.example.android.domain.usecases.advertisement.AddAdvertisementToBDUseCase
+import com.example.android.domain.usecases.advertisement.addimagestostorage.AddAdvertisementImagesToStorageUseCase
+import com.example.android.domain.usecases.advertisement.addadvertisementtodb.AddAdvertisementToBDUseCase
+import com.example.android.domain.usecases.advertisement.getimagesuris.GetImagesUrisUseCase
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
-import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 class CreateAdvertisementViewModel @Inject constructor(
-    private val database: FirebaseDatabase,
     private val dispatcher: CoroutineDispatcher,
     firebaseAuth: FirebaseAuth,
     private val addAdvertisementToBDUseCase: AddAdvertisementToBDUseCase,
-    private val addAdvertisementImagesToStorageUseCase: AddAdvertisementImagesToStorageUseCase
+    private val addAdvertisementImagesToStorageUseCase: AddAdvertisementImagesToStorageUseCase,
+    private val getImagesUrisUseCase: GetImagesUrisUseCase
 ) : ViewModel() {
-    private lateinit var postsValueEventListener: ValueEventListener
     private val _createAdvertisementState: MutableStateFlow<CreateAdvertisementUiState> =
         MutableStateFlow(CreateAdvertisementUiState.Success())
     val advertisementListStatus = _createAdvertisementState.asStateFlow()
-    var advertisement: AdvertisementModel? = null
     val imagesUris = mutableListOf<String>()
     var petType = EMPTY_STRING
     var petStatus = EMPTY_STRING
 
-    var userId: String? = EMPTY_STRING
+    private var userId: String? = EMPTY_STRING
 
     init {
         userId = firebaseAuth.currentUser?.uid
@@ -44,50 +37,25 @@ class CreateAdvertisementViewModel @Inject constructor(
         }
     }
 
-    private fun listenForPostsValueChanges() {
-        postsValueEventListener = object : ValueEventListener {
-            override fun onCancelled(databaseError: DatabaseError) {
-                _createAdvertisementState.value =
-                    CreateAdvertisementUiState.Error(databaseError.message)
-            }
-
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    val user: UserModel? = dataSnapshot.getValue(UserModel::class.java)
-                    _createAdvertisementState.value =
-                        CreateAdvertisementUiState.Success(user = user)
-                }
-            }
-        }
-        userId?.let {
-            database.getReference(RepositoriesNames.Users.name).child(it)
-                .addValueEventListener(postsValueEventListener)
-        }
-    }
-
-    fun onPostsValuesChange() {
-        if (userId != null) {
-            _createAdvertisementState.value = CreateAdvertisementUiState.Loading
-        }
-        listenForPostsValueChanges()
-    }
-
-    fun removePostsValuesChangesListener() {
-        database.getReference(RepositoriesNames.Users.name)
-            .removeEventListener(postsValueEventListener)
-    }
-
-    fun createAdvertisement(address: String) {
+    fun createAdvertisement(address: String, description: String) {
         // проверка заполнености формы создания объявления
-        if (petStatus.isBlank() || petType.isBlank() || address.isBlank() || imagesUris.isEmpty()) {
+        if (petStatus.isBlank() ||
+            petType.isBlank() ||
+            address.isBlank() ||
+            imagesUris.isEmpty() ||
+            description.isBlank() ||
+            userId.isNullOrEmpty()
+        ) {
             _createAdvertisementState.value = CreateAdvertisementUiState.Error(EMPTY_FIELDS)
         } else {
-            advertisement?.let {
-                it.petStatus = petStatus
-                it.petType = petType
-                it.address = address
-            }
-            addAdvertisementImagesToBD()
+            val advertisement = AdvertisementModel(
+                petStatus = petStatus,
+                petType = petType,
+                description = description,
+                address = address,
+                userId = userId!!
+            )
+            addAdvertisementImagesToBD(advertisement)
         }
     }
 
@@ -98,15 +66,24 @@ class CreateAdvertisementViewModel @Inject constructor(
         }
     }
 
-    private fun addAdvertisementImagesToBD() {
+    fun getImagesUris(advertisementModel: AdvertisementModel) {
+        viewModelScope.launch(dispatcher) {
+            launch {
+                val getImagesUrisResult =
+                    getImagesUrisUseCase.execute(advertisementModel, imagesUris.size - 1)
+                _createAdvertisementState.value = getImagesUrisResult
+            }.join()
+        }
+    }
+
+    private fun addAdvertisementImagesToBD(advertisement: AdvertisementModel) {
         _createAdvertisementState.value = CreateAdvertisementUiState.Loading
         viewModelScope.launch(dispatcher) {
-            val addAdvertisementImagesResult = advertisement?.let {
-                addAdvertisementImagesToStorageUseCase.execute(
-                    advertisement!!, imagesUris
-                )
-            }
-            _createAdvertisementState.value = addAdvertisementImagesResult!!
+            val addAdvertisementImagesResult = addAdvertisementImagesToStorageUseCase.execute(
+                advertisement,
+                imagesUris
+            )
+            _createAdvertisementState.value = addAdvertisementImagesResult
         }
     }
 

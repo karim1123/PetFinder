@@ -2,8 +2,8 @@ package com.example.android.data.repositories
 
 import com.example.android.data.utils.RepositoriesNames
 import com.example.android.data.utils.safeCall
-import com.example.android.domain.entities.UserModel
 import com.example.android.domain.common.Resource
+import com.example.android.domain.entities.UserModel
 import com.example.android.domain.repositories.UsersRepository
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.CoroutineDispatcher

@@ -29,7 +29,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.android.domain.common.CreateAdvertisementUiState
-import com.example.android.domain.entities.AdvertisementModel
 import com.example.android.pets_finder.R
 import com.example.android.pets_finder.application.ApplicationContainer
 import com.example.android.pets_finder.databinding.FragmentCreateAdBinding
@@ -39,8 +38,8 @@ import com.example.android.pets_finder.viewModelFactory.injectViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import javax.inject.Inject
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 class CreateAdvertisementFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallback {
     private var _binding: FragmentCreateAdBinding? = null
@@ -84,7 +83,7 @@ class CreateAdvertisementFragment : Fragment(), ActivityCompat.OnRequestPermissi
                     val imageUri: Uri? = data.data
                     imageUri?.let { createAdvertisementViewModel.imagesUris.add(it.toString()) }
                 }
-                adapter.addSelectedImagesUris(createAdvertisementViewModel.imagesUris)
+                adapter.addSelectedImagesUris(createAdvertisementViewModel.imagesUris, true)
                 binding.imagesRecycler.isVisible = true
             }
         }
@@ -118,7 +117,6 @@ class CreateAdvertisementFragment : Fragment(), ActivityCompat.OnRequestPermissi
         (activity as AppCompatActivity).supportActionBar?.title =
             getString(R.string.create_advertisement_fragment_title)
         binding.imagesRecycler.adapter = adapter
-        createAdvertisementViewModel.onPostsValuesChange()
         // обработка нажатия на кнопку выбора картинок
         binding.btnSelectImages.setOnClickListener { showStoragePreview() }
         // обработка нажатия по чек боксам
@@ -132,7 +130,8 @@ class CreateAdvertisementFragment : Fragment(), ActivityCompat.OnRequestPermissi
         // обработка нажатия на кнопку сохранения уведомления
         binding.btnSaveAd.setOnClickListener {
             createAdvertisementViewModel.createAdvertisement(
-                address = binding.etAddress.text.toString()
+                address = binding.etAddress.text.toString(),
+                description = binding.etDescription.text.toString()
             )
         }
         lifecycleScope.launch {
@@ -141,19 +140,13 @@ class CreateAdvertisementFragment : Fragment(), ActivityCompat.OnRequestPermissi
                     when (uiStatus) {
                         is CreateAdvertisementUiState.Loading -> showProgressBar()
                         is CreateAdvertisementUiState.Success -> {
-                            if (uiStatus.user != null) {
-                                customProgressDialog?.hide()
-                                createAdvertisementViewModel.advertisement = AdvertisementModel(
-                                    userId = uiStatus.user!!.id,
-                                    userEmail = uiStatus.user!!.userEmail,
-                                    userPhoneNumber = uiStatus.user!!.userPhoneNumber,
-                                    userName = uiStatus.user!!.userName
-                                )
+                            if (uiStatus.advertisement != null) {
+                                createAdvertisementViewModel.getImagesUris(uiStatus.advertisement!!)
                             }
-                            if (uiStatus.advertisement != null && uiStatus.advertisement != null) {
+                            if (uiStatus.advertisement != null && uiStatus.closeFlag) {
                                 createAdvertisementViewModel.addAdvertisementToBd(uiStatus.advertisement!!)
                             }
-                            if (uiStatus.closeFlag) {
+                            if (uiStatus.advertisement == null && uiStatus.closeFlag) {
                                 customProgressDialog?.hide()
                                 Toast.makeText(
                                     requireContext(),
@@ -205,7 +198,6 @@ class CreateAdvertisementFragment : Fragment(), ActivityCompat.OnRequestPermissi
     override fun onDestroy() {
         _binding = null
         customProgressDialog = null
-        createAdvertisementViewModel.removePostsValuesChangesListener()
         super.onDestroy()
     }
 
