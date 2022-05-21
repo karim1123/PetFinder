@@ -1,16 +1,16 @@
-package com.example.android.domain.usecases.advertisement
+package com.example.android.domain.usecases.advertisement.getimagesuris
 
 import com.example.android.domain.common.CreateAdvertisementUiState
 import com.example.android.domain.entities.AdvertisementModel
 import com.example.android.domain.repositories.AdvertisementRepository
 
-class AddAdvertisementImagesToStorageUseCaseImpl(
+class GetImagesUrisUseCaseImpl(
     private val advertisementRepository: AdvertisementRepository
-) : AddAdvertisementImagesToStorageUseCase {
+) : GetImagesUrisUseCase {
     override suspend fun execute(
         advertisement: AdvertisementModel,
-        imagesUris: MutableList<String>
+        size: Int
     ): CreateAdvertisementUiState {
-        return advertisementRepository.addAdvertisementImagesToStorage(advertisement, imagesUris)
+        return advertisementRepository.getImagesUris(advertisement, size)
     }
 }

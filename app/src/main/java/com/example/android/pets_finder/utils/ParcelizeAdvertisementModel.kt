@@ -1,6 +1,10 @@
-package com.example.android.domain.entities
+package com.example.android.pets_finder.utils
 
-data class AdvertisementModel(
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
+data class ParcelizeAdvertisementModel(
     var advertisementId: String = "",
     var userId: String = "",
     var petStatus: String = "",
@@ -8,4 +12,4 @@ data class AdvertisementModel(
     var address: String = "",
     var description: String = "",
     val urisList: MutableList<String> = mutableListOf()
-)
+) : Parcelable

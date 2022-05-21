@@ -3,6 +3,11 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Apps/PetFinder/app/src/main/res/layout/fragment_advertisement_details.xml" value="0.36666666666666664" />
+        <entry key="..\:/Apps/PetFinder/app/src/main/res/layout/fragment_create_ad.xml" value="0.36666666666666664" />
+        <entry key="..\:/Apps/PetFinder/app/src/main/res/layout/item_advertisement_list.xml" value="0.36666666666666664" />
+        <entry key="..\:/Apps/PetFinder/app/src/main/res/menu/menu_advertisement_details.xml" value="0.36666666666666664" />
+        <entry key="..\:/Apps/PetFinder/app/src/main/res/menu/menu_main.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/karim/Documents/GitHub/app/src/main/res/layout/activity_main.xml" value="0.17831813576494426" />
         <entry key="..\:/Users/karim/Documents/GitHub/app/src/main/res/layout/content_main.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/karim/Documents/GitHub/app/src/main/res/layout/dialog_custom_progress.xml" value="0.36666666666666664" />

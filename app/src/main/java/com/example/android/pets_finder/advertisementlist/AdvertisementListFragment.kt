@@ -12,15 +12,18 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.DividerItemDecoration.VERTICAL
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.android.domain.common.LatestAdvertisementListUiState
 import com.example.android.domain.entities.AdvertisementModel
 import com.example.android.pets_finder.advertisementlist.recycler.AdvertisementListItemAdapter
+import com.example.android.pets_finder.advertisementlistcontainer.AdvertisementListContainerFragmentDirections
 import com.example.android.pets_finder.application.ApplicationContainer
 import com.example.android.pets_finder.databinding.FragmentAdvertisementListBinding
 import com.example.android.pets_finder.utils.AdvertisementPetStatuses
+import com.example.android.pets_finder.utils.ParcelizeAdvertisementModel
 import com.example.android.pets_finder.viewModelFactory.injectViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -119,11 +122,23 @@ class AdvertisementListFragment : Fragment() {
     }
 
     private fun adapterOnClick(advertisementModel: AdvertisementModel) {
-        Toast.makeText(
-            requireContext(),
-            advertisementModel.advertisementId,
-            Toast.LENGTH_SHORT
-        ).show()
+        val action =
+            AdvertisementListContainerFragmentDirections.actionAdvertisementListContainerFragmentToAdvertisementDetailsFragment(
+                advertisementModel.mapToParcelize()
+            )
+        findNavController().navigate(action)
+    }
+
+    private fun AdvertisementModel.mapToParcelize(): ParcelizeAdvertisementModel {
+        return ParcelizeAdvertisementModel(
+            advertisementId,
+            userId,
+            petStatus,
+            petType,
+            address,
+            description,
+            urisList
+        )
     }
 
     companion object {

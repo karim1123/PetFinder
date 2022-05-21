@@ -1,7 +1,8 @@
 package com.example.android.pets_finder.application
 
-import com.example.android.pets_finder.advertisementlist.di.AdvertisementListComponent
-import com.example.android.pets_finder.createadvertisement.di.CreateAdvertisementComponent
+import com.example.android.pets_finder.advertisementdetails.di.AdvertisementDetailsComponentImpl
+import com.example.android.pets_finder.advertisementlist.di.AdvertisementListComponentImpl
+import com.example.android.pets_finder.createadvertisement.di.CreateAdvertisementComponentImpl
 import com.example.android.pets_finder.login.di.LoginComponentImpl
 import com.example.android.pets_finder.registration.di.RegistrationComponentImpl
 import com.example.android.pets_finder.viewModelFactory.ViewModelFactoryModule
@@ -18,6 +19,7 @@ import javax.inject.Singleton
 interface AppComponent : AppComponentOwner {
     override fun plusRegistrationComponent(): RegistrationComponentImpl
     override fun plusLoginComponent(): LoginComponentImpl
-    override fun plusCreateAdvertisementComponent(): CreateAdvertisementComponent
-    override fun plusAdvertisementListComponent(): AdvertisementListComponent
+    override fun plusCreateAdvertisementComponent(): CreateAdvertisementComponentImpl
+    override fun plusAdvertisementListComponent(): AdvertisementListComponentImpl
+    override fun plusAdvertisementDetailsComponent(): AdvertisementDetailsComponentImpl
 }

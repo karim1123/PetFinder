@@ -51,6 +51,7 @@
     <string name="advertisement_list_image_storage_path">%1$s/%2$s/0</string>
     <string name="description">description</string>
     <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
     <string name="storage_access_required">Storage access is required to select the advertisement photos.</string>
     <string name="storage_permission_not_available">Storage is not available. Requesting storage permission.</string>
     <string name="storage_permission_denied">Storage permission request was denied.</string>
@@ -61,7 +62,11 @@
     <string name="select_images">select images</string>
     <string name="cancel_image_button">cancel image button</string>
     <string name="selected_image">selected image</string>
-
+    <string name="delete_advertisement">Delete</string>
+    <string name="delete_advertisement_title">Delete Advertisement?</string>
+    <string name="advertisement_removed">Advertisement successfully removed</string>
+    <string name="user_information">User information:</string>
+    <string name="advertisement_information">Advertisement information:</string>
 
     <string-array name="advertisement_list_tabs_name">
         <item>missing pets</item>

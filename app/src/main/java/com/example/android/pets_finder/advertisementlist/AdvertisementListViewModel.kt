@@ -1,16 +1,16 @@
 package com.example.android.pets_finder.advertisementlist
 
 import androidx.lifecycle.ViewModel
+import com.example.android.data.utils.RepositoriesNames
 import com.example.android.domain.common.LatestAdvertisementListUiState
 import com.example.android.domain.entities.AdvertisementModel
-import com.example.android.data.utils.RepositoriesNames
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import javax.inject.Inject
 
 class AdvertisementListViewModel @Inject constructor(
     private val database: FirebaseDatabase
@@ -32,7 +32,7 @@ class AdvertisementListViewModel @Inject constructor(
                 if (dataSnapshot.exists()) {
                     val advertisements: List<AdvertisementModel> =
                         dataSnapshot.children.mapNotNull {
-                            it.getAdvertisementModel()
+                            it.getValue(AdvertisementModel::class.java)
                         }.toList()
                     _advertisementListStatus.value =
                         LatestAdvertisementListUiState.Success(advertisements)
@@ -54,7 +54,8 @@ class AdvertisementListViewModel @Inject constructor(
     }
 
     fun removePostsValuesChangesListener() {
-        database.getReference(RepositoriesNames.Advertisements.name).removeEventListener(postsValueEventListener)
+        database.getReference(RepositoriesNames.Advertisements.name)
+            .removeEventListener(postsValueEventListener)
     }
 
     fun DataSnapshot.getAdvertisementModel(): AdvertisementModel? {
