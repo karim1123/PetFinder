@@ -4,5 +4,5 @@ import com.example.android.domain.common.CreateAdvertisementUiState
 import com.example.android.domain.entities.AdvertisementModel
 
 interface GetImagesUrisUseCase {
-    suspend fun execute(advertisement: AdvertisementModel, size: Int): CreateAdvertisementUiState
+    suspend fun execute(advertisement: AdvertisementModel): CreateAdvertisementUiState
 }

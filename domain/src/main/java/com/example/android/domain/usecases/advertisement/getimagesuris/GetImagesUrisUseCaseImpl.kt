@@ -8,9 +8,8 @@ class GetImagesUrisUseCaseImpl(
     private val advertisementRepository: AdvertisementRepository
 ) : GetImagesUrisUseCase {
     override suspend fun execute(
-        advertisement: AdvertisementModel,
-        size: Int
+        advertisement: AdvertisementModel
     ): CreateAdvertisementUiState {
-        return advertisementRepository.getImagesUris(advertisement, size)
+        return advertisementRepository.getImagesUris(advertisement)
     }
 }

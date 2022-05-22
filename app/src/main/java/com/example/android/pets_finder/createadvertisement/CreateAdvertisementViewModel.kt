@@ -4,8 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.android.domain.common.CreateAdvertisementUiState
 import com.example.android.domain.entities.AdvertisementModel
-import com.example.android.domain.usecases.advertisement.addimagestostorage.AddAdvertisementImagesToStorageUseCase
 import com.example.android.domain.usecases.advertisement.addadvertisementtodb.AddAdvertisementToBDUseCase
+import com.example.android.domain.usecases.advertisement.addimagestostorage.AddAdvertisementImagesToStorageUseCase
 import com.example.android.domain.usecases.advertisement.getimagesuris.GetImagesUrisUseCase
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineDispatcher
@@ -24,38 +24,30 @@ class CreateAdvertisementViewModel @Inject constructor(
     private val _createAdvertisementState: MutableStateFlow<CreateAdvertisementUiState> =
         MutableStateFlow(CreateAdvertisementUiState.Success())
     val advertisementListStatus = _createAdvertisementState.asStateFlow()
-    val imagesUris = mutableListOf<String>()
-    var petType = EMPTY_STRING
-    var petStatus = EMPTY_STRING
-
+    val advertisement = MutableStateFlow(AdvertisementModel())
     private var userId: String? = EMPTY_STRING
 
     init {
         userId = firebaseAuth.currentUser?.uid
         if (userId == null) {
             _createAdvertisementState.value = CreateAdvertisementUiState.Error(AUTHORIZATION_ERROR)
-        }
+        } else advertisement.value.userId = userId!!
     }
 
     fun createAdvertisement(address: String, description: String) {
         // проверка заполнености формы создания объявления
-        if (petStatus.isBlank() ||
-            petType.isBlank() ||
+        if (advertisement.value.petStatus.isBlank() ||
+            advertisement.value.petType.isBlank() ||
             address.isBlank() ||
-            imagesUris.isEmpty() ||
+            advertisement.value.urisList.isEmpty() ||
             description.isBlank() ||
-            userId.isNullOrEmpty()
+            advertisement.value.userId.isEmpty()
         ) {
             _createAdvertisementState.value = CreateAdvertisementUiState.Error(EMPTY_FIELDS)
         } else {
-            val advertisement = AdvertisementModel(
-                petStatus = petStatus,
-                petType = petType,
-                description = description,
-                address = address,
-                userId = userId!!
-            )
-            addAdvertisementImagesToBD(advertisement)
+            advertisement.value.description = description
+            advertisement.value.address = address
+            addAdvertisementImagesToBD(advertisement.value)
         }
     }
 
@@ -70,18 +62,21 @@ class CreateAdvertisementViewModel @Inject constructor(
         viewModelScope.launch(dispatcher) {
             launch {
                 val getImagesUrisResult =
-                    getImagesUrisUseCase.execute(advertisementModel, imagesUris.size - 1)
+                    getImagesUrisUseCase.execute(
+                        advertisementModel
+                    )
                 _createAdvertisementState.value = getImagesUrisResult
             }.join()
         }
     }
 
-    private fun addAdvertisementImagesToBD(advertisement: AdvertisementModel) {
+    private fun addAdvertisementImagesToBD(
+        advertisementModel: AdvertisementModel
+    ) {
         _createAdvertisementState.value = CreateAdvertisementUiState.Loading
         viewModelScope.launch(dispatcher) {
             val addAdvertisementImagesResult = addAdvertisementImagesToStorageUseCase.execute(
-                advertisement,
-                imagesUris
+                advertisementModel
             )
             _createAdvertisementState.value = addAdvertisementImagesResult
         }

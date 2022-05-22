@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/createAdFragment"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:id="@+id/createAdFragment">
+    android:layout_height="match_parent">
 
     <CheckBox
         android:id="@+id/cbMissingPet"
@@ -51,7 +51,7 @@
         android:layout_toEndOf="@+id/cbCat"
         android:text="@string/dog" />
 
-    <EditText
+    <TextView
         android:id="@+id/etAddress"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -62,10 +62,10 @@
         android:autofillHints="address"
         android:ems="10"
         android:hint="@string/address"
-        android:imeOptions="actionDone"
-        android:inputType="text"
         android:minHeight="48dp"
-        android:textColorHint="#757575" />
+        android:textColor="@color/black"
+        android:textColorHint="#757575"
+        android:textSize="20sp" />
 
     <EditText
         android:id="@+id/etDescription"
@@ -74,13 +74,14 @@
         android:layout_below="@+id/etAddress"
         android:layout_marginStart="20dp"
         android:layout_marginTop="10dp"
-        android:autofillHints="description"
         android:layout_marginEnd="20dp"
+        android:autofillHints="description"
+        android:ems="10"
         android:hint="@string/description"
         android:imeOptions="actionDone"
         android:inputType="text"
-        android:ems="10"
-        android:textColorHint="#757575" />
+        android:textColorHint="#757575"
+        android:textSize="20sp" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/imagesRecycler"
@@ -94,19 +95,27 @@
         app:layoutManager="LinearLayoutManager" />
 
     <Button
-        android:id="@+id/btnSaveAd"
+        android:id="@+id/btnSelectImages"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/imagesRecycler"
         android:layout_marginStart="150dp"
-        android:text="@string/save" />
+        android:text="@string/select_images" />
 
     <Button
-        android:id="@+id/btnSelectImages"
+        android:id="@+id/btnSelectAddress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/btnSaveAd"
+        android:layout_below="@id/btnSelectImages"
         android:layout_marginStart="150dp"
-        android:text="@string/select_images" />
+        android:text="@string/select_address" />
+
+    <Button
+        android:id="@+id/btnSaveAd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/btnSelectAddress"
+        android:layout_marginStart="150dp"
+        android:text="@string/save" />
 
 </RelativeLayout>

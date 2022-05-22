@@ -23,7 +23,7 @@ import com.example.android.pets_finder.advertisementlistcontainer.AdvertisementL
 import com.example.android.pets_finder.application.ApplicationContainer
 import com.example.android.pets_finder.databinding.FragmentAdvertisementListBinding
 import com.example.android.pets_finder.utils.AdvertisementPetStatuses
-import com.example.android.pets_finder.utils.ParcelizeAdvertisementModel
+import com.example.android.pets_finder.utils.MapperUtils.mapToParcelize
 import com.example.android.pets_finder.viewModelFactory.injectViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -127,18 +127,6 @@ class AdvertisementListFragment : Fragment() {
                 advertisementModel.mapToParcelize()
             )
         findNavController().navigate(action)
-    }
-
-    private fun AdvertisementModel.mapToParcelize(): ParcelizeAdvertisementModel {
-        return ParcelizeAdvertisementModel(
-            advertisementId,
-            userId,
-            petStatus,
-            petType,
-            address,
-            description,
-            urisList
-        )
     }
 
     companion object {

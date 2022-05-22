@@ -8,9 +8,8 @@ class AddAdvertisementImagesToStorageUseCaseImpl(
     private val advertisementRepository: AdvertisementRepository
 ) : AddAdvertisementImagesToStorageUseCase {
     override suspend fun execute(
-        advertisement: AdvertisementModel,
-        imagesUris: MutableList<String>
+        advertisement: AdvertisementModel
     ): CreateAdvertisementUiState {
-        return advertisementRepository.addAdvertisementImagesToStorage(advertisement, imagesUris)
+        return advertisementRepository.addAdvertisementImagesToStorage(advertisement)
     }
 }
