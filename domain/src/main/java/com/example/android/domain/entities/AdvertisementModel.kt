@@ -7,5 +7,7 @@ data class AdvertisementModel(
     var petType: String = "",
     var address: String = "",
     var description: String = "",
-    val urisList: MutableList<String> = mutableListOf()
+    var urisList: MutableList<String> = mutableListOf(),
+    var latitude: Double? = null,
+    var longitude: Double? = null
 )

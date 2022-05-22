@@ -28,12 +28,15 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.example.android.domain.common.CreateAdvertisementUiState
 import com.example.android.pets_finder.R
 import com.example.android.pets_finder.application.ApplicationContainer
 import com.example.android.pets_finder.databinding.FragmentCreateAdBinding
 import com.example.android.pets_finder.utils.AdvertisementPetStatuses
 import com.example.android.pets_finder.utils.AdvertisementPetTypes
+import com.example.android.pets_finder.utils.MapperUtils.mapToAdvertisementModel
+import com.example.android.pets_finder.utils.MapperUtils.mapToParcelize
 import com.example.android.pets_finder.viewModelFactory.injectViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.ktx.auth
@@ -47,6 +50,7 @@ class CreateAdvertisementFragment : Fragment(), ActivityCompat.OnRequestPermissi
     private lateinit var createAdvertisementViewModel: CreateAdvertisementViewModel
     private var customProgressDialog: Dialog? = null
     private val adapter = CreateAdvertisementImagesListItemAdapter()
+    private val args: CreateAdvertisementFragmentArgs by navArgs()
 
     @Inject
     lateinit var factory: ViewModelProvider.Factory
@@ -76,14 +80,15 @@ class CreateAdvertisementFragment : Fragment(), ActivityCompat.OnRequestPermissi
                     for (i in 0 until count) {
                         val imageUri: Uri? = data.clipData?.getItemAt(i)?.uri
                         imageUri?.let {
-                            createAdvertisementViewModel.imagesUris.add(it.toString())
+                            createAdvertisementViewModel.advertisement.value.urisList.add(it.toString())
                         }
                     }
                 } else if (data?.data != null) {
                     val imageUri: Uri? = data.data
-                    imageUri?.let { createAdvertisementViewModel.imagesUris.add(it.toString()) }
+                    imageUri?.let {
+                        createAdvertisementViewModel.advertisement.value.urisList.add(it.toString())
+                    }
                 }
-                adapter.addSelectedImagesUris(createAdvertisementViewModel.imagesUris, true)
                 binding.imagesRecycler.isVisible = true
             }
         }
@@ -116,7 +121,12 @@ class CreateAdvertisementFragment : Fragment(), ActivityCompat.OnRequestPermissi
         super.onViewCreated(view, savedInstanceState)
         (activity as AppCompatActivity).supportActionBar?.title =
             getString(R.string.create_advertisement_fragment_title)
+        // восставновление данных после возвращения из фрагмента выбора дареса
+        restoreData()
+
+        adapter.addViewModel(createAdvertisementViewModel)
         binding.imagesRecycler.adapter = adapter
+        changeRecyclerVisibility()
         // обработка нажатия на кнопку выбора картинок
         binding.btnSelectImages.setOnClickListener { showStoragePreview() }
         // обработка нажатия по чек боксам
@@ -127,13 +137,24 @@ class CreateAdvertisementFragment : Fragment(), ActivityCompat.OnRequestPermissi
             binding.cbFoundPet,
             binding.cbHomelessPet
         )
-        // обработка нажатия на кнопку сохранения уведомления
+        // обработка нажатия на кнопку сохранения объявления
         binding.btnSaveAd.setOnClickListener {
             createAdvertisementViewModel.createAdvertisement(
                 address = binding.etAddress.text.toString(),
                 description = binding.etDescription.text.toString()
             )
         }
+        // обработка нажатия на кнопку выбора адреса
+        binding.btnSelectAddress.setOnClickListener {
+            createAdvertisementViewModel.advertisement.value.description =
+                binding.etDescription.text.toString()
+            val action =
+                CreateAdvertisementFragmentDirections.actionCreateAdFragmentToAdvertisementAddressFragment(
+                    createAdvertisementViewModel.advertisement.value.mapToParcelize()
+                )
+            findNavController().navigate(action)
+        }
+
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 createAdvertisementViewModel.advertisementListStatus.collect { uiStatus ->
@@ -201,6 +222,36 @@ class CreateAdvertisementFragment : Fragment(), ActivityCompat.OnRequestPermissi
         super.onDestroy()
     }
 
+    private fun restoreData() {
+        if (args.advertisementData != null) {
+            binding.apply {
+                etAddress.text = args.advertisementData!!.address
+                etDescription.setText(args.advertisementData!!.description)
+            }
+            when (args.advertisementData!!.petType) {
+                AdvertisementPetTypes.cat.name -> binding.cbCat.isChecked = true
+                AdvertisementPetTypes.dog.name -> binding.cbDog.isChecked = true
+            }
+            when (args.advertisementData!!.petStatus) {
+                AdvertisementPetStatuses.missed.name -> binding.cbMissingPet.isChecked = true
+                AdvertisementPetStatuses.found.name -> binding.cbFoundPet.isChecked = true
+                AdvertisementPetStatuses.homeless.name -> binding.cbHomelessPet.isChecked = true
+            }
+            createAdvertisementViewModel.advertisement.value =
+                args.advertisementData!!.mapToAdvertisementModel()
+        }
+    }
+
+    private fun changeRecyclerVisibility() {
+        lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                createAdvertisementViewModel.advertisement.collect { advertisement ->
+                    binding.imagesRecycler.isVisible = advertisement.urisList.isNotEmpty()
+                }
+            }
+        }
+    }
+
     private fun showStoragePreview() {
         if (ContextCompat.checkSelfPermission(
                 requireContext(),
@@ -255,20 +306,22 @@ class CreateAdvertisementFragment : Fragment(), ActivityCompat.OnRequestPermissi
                 binding.cbCat.id -> {
                     if (checked) {
                         binding.cbDog.isChecked = false
-                        createAdvertisementViewModel.petType = AdvertisementPetTypes.cat.name
+                        createAdvertisementViewModel.advertisement.value.petType =
+                            AdvertisementPetTypes.cat.name
                     }
                 }
                 binding.cbDog.id -> {
                     if (checked) {
                         binding.cbCat.isChecked = false
-                        createAdvertisementViewModel.petType = AdvertisementPetTypes.dog.name
+                        createAdvertisementViewModel.advertisement.value.petType =
+                            AdvertisementPetTypes.dog.name
                     }
                 }
                 binding.cbMissingPet.id -> {
                     if (checked) {
                         binding.cbFoundPet.isChecked = false
                         binding.cbHomelessPet.isChecked = false
-                        createAdvertisementViewModel.petStatus =
+                        createAdvertisementViewModel.advertisement.value.petStatus =
                             AdvertisementPetStatuses.missed.name
                     }
                 }
@@ -276,14 +329,15 @@ class CreateAdvertisementFragment : Fragment(), ActivityCompat.OnRequestPermissi
                     if (checked) {
                         binding.cbMissingPet.isChecked = false
                         binding.cbHomelessPet.isChecked = false
-                        createAdvertisementViewModel.petStatus = AdvertisementPetStatuses.found.name
+                        createAdvertisementViewModel.advertisement.value.petStatus =
+                            AdvertisementPetStatuses.found.name
                     }
                 }
                 binding.cbHomelessPet.id -> {
                     if (checked) {
                         binding.cbMissingPet.isChecked = false
                         binding.cbFoundPet.isChecked = false
-                        createAdvertisementViewModel.petStatus =
+                        createAdvertisementViewModel.advertisement.value.petType =
                             AdvertisementPetStatuses.homeless.name
                     }
                 }

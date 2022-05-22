@@ -35,8 +35,7 @@ class AdvertisementRepositoryImpl(
     }
 
     override suspend fun addAdvertisementImagesToStorage(
-        advertisementModel: AdvertisementModel,
-        imagesUris: MutableList<String>
+        advertisementModel: AdvertisementModel
     ): CreateAdvertisementUiState {
         return withContext(dispatcher) {
             createAdvertisementSafeCall {
@@ -45,10 +44,11 @@ class AdvertisementRepositoryImpl(
                 val storageReference =
                     storage.getReference("/${RepositoriesNames.images.name}/$key")
                 // загрузка картинок в firebase storage и получение их url
-                for (index in imagesUris.indices) {
+                for (index in advertisementModel.urisList.indices) {
                     async(dispatcher) {
                         storageReference.child(index.toString())
-                            .putFile(Uri.parse(imagesUris[index])).addOnCompleteListener {
+                            .putFile(Uri.parse(advertisementModel.urisList[index]))
+                            .addOnCompleteListener {
                             }.await()
                     }
                 }
@@ -60,19 +60,20 @@ class AdvertisementRepositoryImpl(
     }
 
     override suspend fun getImagesUris(
-        advertisement: AdvertisementModel,
-        size: Int
+        advertisement: AdvertisementModel
     ): CreateAdvertisementUiState =
         withContext(dispatcher) {
             createAdvertisementSafeCall {
                 val storageReference = storage.getReference(
                     "/${RepositoriesNames.images.name}/${advertisement.advertisementId}"
                 )
+                val size = advertisement.urisList.size - 1
                 for (i in 0..size) {
                     val imageReference = storageReference.child("$i")
                     async {
                         imageReference.downloadUrl.addOnSuccessListener { uri ->
-                            advertisement.urisList.add(uri.toString())
+                            advertisement.urisList.removeAt(i)
+                            advertisement.urisList.add(i, uri.toString())
                         }.await()
                     }
                 }

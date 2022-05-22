@@ -10,13 +10,11 @@ interface AdvertisementRepository {
     ): CreateAdvertisementUiState
 
     suspend fun addAdvertisementImagesToStorage(
-        advertisementModel: AdvertisementModel,
-        imagesUris: MutableList<String>
+        advertisementModel: AdvertisementModel
     ): CreateAdvertisementUiState
 
     suspend fun getImagesUris(
-        advertisement: AdvertisementModel,
-        size: Int
+        advertisement: AdvertisementModel
     ): CreateAdvertisementUiState
 
     suspend fun deleteAdvertisement(advertisementId: String): AdvertisementDetailsUiState

@@ -23,7 +23,6 @@ import com.example.android.domain.common.AdvertisementDetailsUiState
 import com.example.android.domain.entities.UserModel
 import com.example.android.pets_finder.R
 import com.example.android.pets_finder.application.ApplicationContainer
-import com.example.android.pets_finder.createadvertisement.CreateAdvertisementImagesListItemAdapter
 import com.example.android.pets_finder.databinding.FragmentAdvertisementDetailsBinding
 import com.example.android.pets_finder.viewModelFactory.injectViewModel
 import com.google.firebase.auth.ktx.auth
@@ -36,7 +35,7 @@ class AdvertisementDetailsFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var advertisementDetailsViewModel: AdvertisementDetailsViewModel
     private val args: AdvertisementDetailsFragmentArgs by navArgs()
-    private val adapter = CreateAdvertisementImagesListItemAdapter()
+    private val adapter = AdvertisementDetailsAdapter()
 
     @Inject
     lateinit var factory: ViewModelProvider.Factory
@@ -150,7 +149,7 @@ class AdvertisementDetailsFragment : Fragment() {
     private fun renderAdvertisementData() {
         binding.tvAddress.text = args.advertisementData.address
         binding.tvDescription.text = args.advertisementData.description
-        adapter.addSelectedImagesUris(args.advertisementData.urisList, false)
+        adapter.addSelectedImagesUris(args.advertisementData.urisList)
         binding.imagesRecycler.adapter = adapter
     }
 
