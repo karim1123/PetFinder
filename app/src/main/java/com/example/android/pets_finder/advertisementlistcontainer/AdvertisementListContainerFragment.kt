@@ -62,6 +62,7 @@ class AdvertisementListContainerFragment : Fragment() {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_main, menu)
+        menu.findItem(R.id.action_open_map_fragment).isVisible = true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -73,6 +74,12 @@ class AdvertisementListContainerFragment : Fragment() {
                 Firebase.auth.signOut()
                 findNavController().navigate(
                     R.id.action_advertisementListContainerFragment_to_loginFragment
+                )
+                true
+            }
+            R.id.action_open_map_fragment -> {
+                findNavController().navigate(
+                    R.id.action_advertisementListContainerFragment_to_advertisementsMapFragment
                 )
                 true
             }

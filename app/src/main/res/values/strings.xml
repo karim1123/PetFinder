@@ -48,6 +48,7 @@
     <string name="advertisement_details_fragment_title">Advertisement details</string>
     <string name="create_advertisement_fragment_title">Create advertisement</string>
     <string name="advertisement_address_fragment_title">Select address</string>
+    <string name="advertisement_map_fragment_title">Advertisement map</string>
     <string name="advertisement_list_item_title">%1$s %2$s</string>
     <string name="advertisement_list_image_storage_path">%1$s/%2$s/0</string>
     <string name="description">description</string>
@@ -72,6 +73,7 @@
     <string name="select_location">select location</string>
     <string name="searching">searching</string>
     <string name="address_not_selected">Address not selected</string>
+    <string name="show_advertisements_on_map">show advertisements on map</string>
 
     <string-array name="advertisement_list_tabs_name">
         <item>missing pets</item>
