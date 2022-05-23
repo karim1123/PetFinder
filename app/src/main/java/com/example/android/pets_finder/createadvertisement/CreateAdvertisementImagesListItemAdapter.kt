@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.android.pets_finder.databinding.ItemCreateAdvertisementImagesListBinding
 
-class CreateAdvertisementImagesListItemAdapter() :
+class CreateAdvertisementImagesListItemAdapter :
     RecyclerView.Adapter<CreateAdvertisementImagesListItemAdapter.ImageViewHolder>() {
     lateinit var viewModel: CreateAdvertisementViewModel
 
@@ -52,6 +52,14 @@ class CreateAdvertisementImagesListItemAdapter() :
         val itemCount = viewModel.advertisement.value.urisList.size - index
         notifyItemRemoved(index)
         notifyItemRangeChanged(index, itemCount)
+    }
+
+    // функция для обновления ресайклера при добавлении новых картинок
+    fun refreshRecycler(addedImagesCount: Int) {
+        notifyItemRangeChanged(
+            viewModel.advertisement.value.urisList.size - addedImagesCount,
+            viewModel.advertisement.value.urisList.size
+        )
     }
 
     fun addViewModel(createAdvertisementViewModel: CreateAdvertisementViewModel) {

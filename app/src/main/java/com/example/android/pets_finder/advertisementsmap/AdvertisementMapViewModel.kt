@@ -1,4 +1,4 @@
-package com.example.android.pets_finder.advertisementlist
+package com.example.android.pets_finder.advertisementsmap
 
 import androidx.lifecycle.ViewModel
 import com.example.android.data.utils.RepositoriesNames
@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
-class AdvertisementListViewModel @Inject constructor(
+class AdvertisementMapViewModel @Inject constructor(
     private val database: FirebaseDatabase
 ) : ViewModel() {
     private lateinit var postsValueEventListener: ValueEventListener

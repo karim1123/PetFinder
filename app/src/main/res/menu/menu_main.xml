@@ -18,4 +18,11 @@
         android:orderInCategory="3"
         android:title="@string/delete_advertisement"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_open_map_fragment"
+        android:icon="@drawable/ic_map_button"
+        android:visible="false"
+        app:showAsAction="ifRoom"
+        android:title="@string/show_advertisements_on_map" />
 </menu>

@@ -4,6 +4,9 @@ import android.content.Context
 import android.location.Geocoder
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
@@ -22,6 +25,8 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import java.util.Locale
 import javax.inject.Inject
 
@@ -45,6 +50,7 @@ class AdvertisementAddressFragment : Fragment(), OnMapReadyCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
         advertisementAddressViewModel =
             ViewModelProvider(this)[AdvertisementAddressViewModel::class.java]
     }
@@ -79,6 +85,26 @@ class AdvertisementAddressFragment : Fragment(), OnMapReadyCallback {
                 R.string.address_not_selected,
                 Toast.LENGTH_SHORT
             ).show()
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_main, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_settings -> {
+                true
+            }
+            R.id.action_logout -> {
+                Firebase.auth.signOut()
+                findNavController().navigate(
+                    R.id.action_advertisementAddressFragment_to_loginFragment
+                )
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 

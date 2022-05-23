@@ -81,12 +81,14 @@ class CreateAdvertisementFragment : Fragment(), ActivityCompat.OnRequestPermissi
                         val imageUri: Uri? = data.clipData?.getItemAt(i)?.uri
                         imageUri?.let {
                             createAdvertisementViewModel.advertisement.value.urisList.add(it.toString())
+                            adapter.refreshRecycler(count)
                         }
                     }
                 } else if (data?.data != null) {
                     val imageUri: Uri? = data.data
                     imageUri?.let {
                         createAdvertisementViewModel.advertisement.value.urisList.add(it.toString())
+                        adapter.refreshRecycler(ADDED_ONE_IMAGE)
                     }
                 }
                 binding.imagesRecycler.isVisible = true
@@ -356,5 +358,6 @@ class CreateAdvertisementFragment : Fragment(), ActivityCompat.OnRequestPermissi
 
     companion object {
         const val IMAGE_CONTENT_TYPE = "image/*"
+        const val ADDED_ONE_IMAGE = 1
     }
 }

@@ -3,6 +3,7 @@ package com.example.android.pets_finder.application
 import com.example.android.pets_finder.advertisementaddress.di.AdvertisementAddressComponentImpl
 import com.example.android.pets_finder.advertisementdetails.di.AdvertisementDetailsComponentImpl
 import com.example.android.pets_finder.advertisementlist.di.AdvertisementListComponentImpl
+import com.example.android.pets_finder.advertisementsmap.di.AdvertisementMapComponentImpl
 import com.example.android.pets_finder.createadvertisement.di.CreateAdvertisementComponentImpl
 import com.example.android.pets_finder.login.di.LoginComponentImpl
 import com.example.android.pets_finder.registration.di.RegistrationComponentImpl
@@ -24,4 +25,5 @@ interface AppComponentImpl : AppComponent {
     override fun plusAdvertisementListComponent(): AdvertisementListComponentImpl
     override fun plusAdvertisementDetailsComponent(): AdvertisementDetailsComponentImpl
     override fun plusAdvertisementAddressComponent(): AdvertisementAddressComponentImpl
+    override fun plusAdvertisementMapComponent(): AdvertisementMapComponentImpl
 }
