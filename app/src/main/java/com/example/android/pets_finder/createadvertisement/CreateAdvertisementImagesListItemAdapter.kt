@@ -52,6 +52,8 @@ class CreateAdvertisementImagesListItemAdapter :
         val itemCount = viewModel.advertisement.value.urisList.size - index
         notifyItemRemoved(index)
         notifyItemRangeChanged(index, itemCount)
+        // скрываем ресайклер, если он пустой
+        viewModel.recyclerVisibility.value = viewModel.advertisement.value.urisList.isNotEmpty()
     }
 
     // функция для обновления ресайклера при добавлении новых картинок
@@ -60,6 +62,7 @@ class CreateAdvertisementImagesListItemAdapter :
             viewModel.advertisement.value.urisList.size - addedImagesCount,
             viewModel.advertisement.value.urisList.size
         )
+        viewModel.recyclerVisibility.value = true
     }
 
     fun addViewModel(createAdvertisementViewModel: CreateAdvertisementViewModel) {

@@ -33,7 +33,8 @@ object GetAddressUtil {
                 setAddress(address.subAdminArea, sb)
                 setAddress(address.thoroughfare, sb)
                 setAddress(address.subThoroughfare, sb)
-                addressString = sb.toString()
+                // удаление разделителя в конце строки т.к. он не нужен
+                addressString = sb.dropLast(SEPARATOR.length).toString()
             }
         } catch (e: IOException) {
             Log.d(EXCEPTION, e.toString())

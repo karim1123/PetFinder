@@ -7,7 +7,8 @@
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        app:tabTextAppearance="@style/LowerTextAppearance" />
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -26,7 +27,7 @@
             android:layout_alignParentBottom="true"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
-            app:srcCompat="@android:drawable/ic_input_add"
-            android:contentDescription="@string/create_advertisement_button" />
+            android:contentDescription="@string/create_advertisement_button"
+            app:srcCompat="@android:drawable/ic_input_add" />
     </RelativeLayout>
 </LinearLayout>

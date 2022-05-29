@@ -6,8 +6,8 @@
 
     <ImageView
         android:id="@+id/petPhoto"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_marginStart="12dp"
@@ -22,8 +22,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="18dp"
         android:layout_toEndOf="@+id/petPhoto"
-        android:textColor="@color/black"
-        android:textSize="24sp"
+        android:textSize="18sp"
         android:textStyle="bold" />
 
     <TextView
@@ -32,10 +31,9 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/tvAdvertisementListItemTitle"
         android:layout_marginStart="18dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginEnd="10dp"
         android:layout_toEndOf="@+id/petPhoto"
-        android:textColor="@color/black"
-        android:textSize="24sp"
+        android:textSize="16sp"
         android:textStyle="normal" />
 
 </RelativeLayout>

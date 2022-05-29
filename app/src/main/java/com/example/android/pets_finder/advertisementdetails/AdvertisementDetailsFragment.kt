@@ -142,6 +142,7 @@ class AdvertisementDetailsFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        binding.imagesRecycler.adapter = null
         _binding = null
         super.onDestroyView()
     }

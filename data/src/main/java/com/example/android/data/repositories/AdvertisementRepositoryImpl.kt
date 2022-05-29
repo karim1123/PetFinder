@@ -11,7 +11,7 @@ import com.example.android.domain.repositories.AdvertisementRepository
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
@@ -45,11 +45,9 @@ class AdvertisementRepositoryImpl(
                     storage.getReference("/${RepositoriesNames.images.name}/$key")
                 // загрузка картинок в firebase storage и получение их url
                 for (index in advertisementModel.urisList.indices) {
-                    async(dispatcher) {
+                    launch(dispatcher) {
                         storageReference.child(index.toString())
-                            .putFile(Uri.parse(advertisementModel.urisList[index]))
-                            .addOnCompleteListener {
-                            }.await()
+                            .putFile(Uri.parse(advertisementModel.urisList[index])).await()
                     }
                 }
                 CreateAdvertisementUiState.Success(
@@ -70,7 +68,7 @@ class AdvertisementRepositoryImpl(
                 val size = advertisement.urisList.size - 1
                 for (i in 0..size) {
                     val imageReference = storageReference.child("$i")
-                    async {
+                    launch(dispatcher) {
                         imageReference.downloadUrl.addOnSuccessListener { uri ->
                             advertisement.urisList.removeAt(i)
                             advertisement.urisList.add(i, uri.toString())
