@@ -1,24 +1,25 @@
 package com.example.android.pets_finder.login
 
-import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import com.example.android.domain.common.Resource
+import com.example.android.pets_finder.R
 import com.example.android.pets_finder.application.ApplicationContainer
 import com.example.android.pets_finder.databinding.FragmentLoginBinding
-import com.example.android.pets_finder.R
 import com.example.android.pets_finder.viewModelFactory.injectViewModel
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -26,7 +27,6 @@ class LoginFragment : Fragment() {
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
     private lateinit var loginViewModel: LoginViewModel
-    private var customProgressDialog: Dialog? = null
 
     @Inject
     lateinit var factory: ViewModelProvider.Factory
@@ -57,6 +57,18 @@ class LoginFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         (activity as AppCompatActivity).supportActionBar?.title =
             getString(R.string.login_fragment_title)
+
+        binding.etEmailAddress.addTextChangedListener { binding.usernameLayout.error = EMPTY_ERROR }
+        binding.etPassword.addTextChangedListener { binding.passwordLayout.error = EMPTY_ERROR }
+
+        lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                loginViewModel.userSignInStatus.collect { uiState ->
+                    loginStatusChanged(uiState)
+                }
+            }
+        }
+
         // обработка нажатия кнопки для логина
         binding.btnLogin.setOnClickListener {
             loginViewModel.login(
@@ -68,52 +80,52 @@ class LoginFragment : Fragment() {
         binding.tvRedirectSignUp.setOnClickListener {
             findNavController().navigate(R.id.action_loginFragment_to_registrationFragment)
         }
-        lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                loginViewModel.userSignInStatus.collect { uiState ->
-                    when (uiState) {
-                        is Resource.Loading -> {
-                            showProgressBar()
-                        }
-                        is Resource.Success -> {
-                            customProgressDialog?.hide()
-                            if (uiState.data != LoginViewModel.EMPTY_ID) {
-                                Toast.makeText(
-                                    requireContext(),
-                                    R.string.successfully_logged_In,
-                                    Toast.LENGTH_SHORT
-                                )
-                                    .show()
-                                // если пользователь успешно авторизовался или уже был авторизован,
-                                // то переход в фрагмент просмотра контактов
-                                findNavController().navigate(
-                                    R.id.action_loginFragment_to_advertisementListContainerFragment
-                                )
-                            }
-                        }
-                        is Resource.Error -> {
-                            customProgressDialog?.hide()
-                            Toast.makeText(requireContext(), uiState.message, Toast.LENGTH_SHORT)
-                                .show()
-                        }
-                    }
-                }
-            }
-        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        customProgressDialog = null
     }
 
-    private fun showProgressBar() {
-        customProgressDialog = Dialog(requireContext())
-        customProgressDialog?.let {
-            it.setContentView(R.layout.dialog_custom_progress)
-            it.setCancelable(false)
-            it.show()
+    private fun loginStatusChanged(uiState: LoginStatus) {
+        if (uiState == LoginStatus.Loading) {
+            setLoading()
+            return
+        } else {
+            hideLoading()
         }
+
+        when (uiState) {
+            LoginStatus.EmptyEmail ->
+                binding.usernameLayout.error = getString(R.string.empty_email)
+            LoginStatus.EmptyPassword ->
+                binding.passwordLayout.error = getString(R.string.empty_password)
+            LoginStatus.Error -> showSnackbar(R.string.login_error_generic)
+            LoginStatus.Success -> {
+                showSnackbar(R.string.successfully_logged_In)
+                findNavController().navigate(
+                    R.id.action_loginFragment_to_advertisementListContainerFragment
+                )
+            }
+        }
+    }
+
+    private fun showSnackbar(@StringRes id: Int) =
+        Snackbar.make(binding.detailsLayout, id, Snackbar.LENGTH_LONG).show()
+
+    private fun setLoading() {
+        binding.progressBar.isVisible = true
+        binding.btnLogin.text = ""
+        binding.btnLogin.isEnabled = false
+    }
+
+    private fun hideLoading() {
+        binding.progressBar.isVisible = true
+        binding.btnLogin.text = getString(R.string.login)
+        binding.btnLogin.isEnabled = true
+    }
+
+    companion object {
+        const val EMPTY_ERROR = ""
     }
 }

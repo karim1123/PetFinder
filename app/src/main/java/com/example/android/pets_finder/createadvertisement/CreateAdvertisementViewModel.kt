@@ -24,6 +24,8 @@ class CreateAdvertisementViewModel @Inject constructor(
     private val _createAdvertisementState: MutableStateFlow<CreateAdvertisementUiState> =
         MutableStateFlow(CreateAdvertisementUiState.Success())
     val advertisementListStatus = _createAdvertisementState.asStateFlow()
+
+    val recyclerVisibility = MutableStateFlow(false)
     val advertisement = MutableStateFlow(AdvertisementModel())
     private var userId: String? = EMPTY_STRING
 

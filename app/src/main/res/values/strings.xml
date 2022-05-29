@@ -74,11 +74,14 @@
     <string name="searching">searching</string>
     <string name="address_not_selected">Address not selected</string>
     <string name="show_advertisements_on_map">show advertisements on map</string>
+    <string name="empty_email">Empty email not allowed</string>
+    <string name="empty_password">Empty password not allowed</string>
+    <string name="login_error_generic">Error trying to login, please try again</string>
 
     <string-array name="advertisement_list_tabs_name">
-        <item>missing pets</item>
-        <item>found pets</item>
-        <item>pets looking for a home</item>
+        <item>Missing pets</item>
+        <item>Found pets</item>
+        <item>Pets looking for a home</item>
     </string-array>
 
 

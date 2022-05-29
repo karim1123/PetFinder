@@ -71,6 +71,7 @@ class AdvertisementListFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        binding.advertisementListRecycler.adapter = null
         _binding = null
         super.onDestroyView()
     }

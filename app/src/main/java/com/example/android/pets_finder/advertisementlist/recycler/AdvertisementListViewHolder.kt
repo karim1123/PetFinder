@@ -34,7 +34,7 @@ class AdvertisementListViewHolder(
         )
         petAddress.text = advertisementModel.address
         if (advertisementModel.urisList.isNotEmpty()) {
-            Glide.with(context).load(advertisementModel.urisList.first())
+            Glide.with(context).load(advertisementModel.urisList.first()).circleCrop()
                 .placeholder(R.drawable.ic_mage_placeholder).into(petPhoto)
         }
     }

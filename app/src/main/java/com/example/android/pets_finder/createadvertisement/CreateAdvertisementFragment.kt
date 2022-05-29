@@ -91,7 +91,6 @@ class CreateAdvertisementFragment : Fragment(), ActivityCompat.OnRequestPermissi
                         adapter.refreshRecycler(ADDED_ONE_IMAGE)
                     }
                 }
-                binding.imagesRecycler.isVisible = true
             }
         }
 
@@ -163,13 +162,14 @@ class CreateAdvertisementFragment : Fragment(), ActivityCompat.OnRequestPermissi
                     when (uiStatus) {
                         is CreateAdvertisementUiState.Loading -> showProgressBar()
                         is CreateAdvertisementUiState.Success -> {
-                            if (uiStatus.advertisement != null) {
-                                createAdvertisementViewModel.getImagesUris(uiStatus.advertisement!!)
+                            val advertisement = uiStatus.advertisement
+                            if (advertisement != null && !uiStatus.closeFlag) {
+                                createAdvertisementViewModel.getImagesUris(advertisement)
                             }
-                            if (uiStatus.advertisement != null && uiStatus.closeFlag) {
-                                createAdvertisementViewModel.addAdvertisementToBd(uiStatus.advertisement!!)
+                            if (advertisement != null && uiStatus.closeFlag) {
+                                createAdvertisementViewModel.addAdvertisementToBd(advertisement)
                             }
-                            if (uiStatus.advertisement == null && uiStatus.closeFlag) {
+                            if (advertisement == null && uiStatus.closeFlag) {
                                 customProgressDialog?.hide()
                                 Toast.makeText(
                                     requireContext(),
@@ -225,30 +225,34 @@ class CreateAdvertisementFragment : Fragment(), ActivityCompat.OnRequestPermissi
     }
 
     private fun restoreData() {
-        if (args.advertisementData != null) {
+        val advertisement = args.advertisementData
+        if (advertisement != null) {
             binding.apply {
-                etAddress.text = args.advertisementData!!.address
-                etDescription.setText(args.advertisementData!!.description)
+                etAddress.text = advertisement.address
+                etDescription.setText(advertisement.description)
             }
-            when (args.advertisementData!!.petType) {
+            when (advertisement.petType) {
                 AdvertisementPetTypes.cat.name -> binding.cbCat.isChecked = true
                 AdvertisementPetTypes.dog.name -> binding.cbDog.isChecked = true
             }
-            when (args.advertisementData!!.petStatus) {
+            when (advertisement.petStatus) {
                 AdvertisementPetStatuses.missed.name -> binding.cbMissingPet.isChecked = true
                 AdvertisementPetStatuses.found.name -> binding.cbFoundPet.isChecked = true
                 AdvertisementPetStatuses.homeless.name -> binding.cbHomelessPet.isChecked = true
             }
             createAdvertisementViewModel.advertisement.value =
-                args.advertisementData!!.mapToAdvertisementModel()
+                advertisement.mapToAdvertisementModel()
         }
     }
 
     private fun changeRecyclerVisibility() {
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                createAdvertisementViewModel.advertisement.collect { advertisement ->
-                    binding.imagesRecycler.isVisible = advertisement.urisList.isNotEmpty()
+                createAdvertisementViewModel.recyclerVisibility.collect { visibility ->
+                    when (visibility) {
+                        true -> binding.imagesRecycler.isVisible = true
+                        else -> binding.imagesRecycler.isVisible = false
+                    }
                 }
             }
         }

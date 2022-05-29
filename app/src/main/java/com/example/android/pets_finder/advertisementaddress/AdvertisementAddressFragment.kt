@@ -70,8 +70,9 @@ class AdvertisementAddressFragment : Fragment(), OnMapReadyCallback {
             getString(R.string.advertisement_address_fragment_title)
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(this)
-        if (args.advertisementData != null) {
-            advertisementAddressViewModel.advertisement.value = args.advertisementData!!
+        val advertisement = args.advertisementData
+        if (advertisement != null) {
+            advertisementAddressViewModel.advertisement.value = advertisement
         }
         binding.btnSelectLocation.setOnClickListener {
             if (advertisementAddressViewModel.advertisement.value.address.isNotBlank()) {

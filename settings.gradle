@@ -16,3 +16,5 @@ rootProject.name = "pets_finder"
 include ':app'
 include ':domain'
 include ':data'
+include ':login'
+

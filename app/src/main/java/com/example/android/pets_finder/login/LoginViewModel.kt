@@ -5,46 +5,51 @@ import androidx.lifecycle.viewModelScope
 import com.example.android.domain.common.Resource
 import com.example.android.domain.usecases.login.LoginUseCase
 import com.google.firebase.auth.FirebaseAuth
-import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 class LoginViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
     private val dispatcher: CoroutineDispatcher,
-    firebaseAuth: FirebaseAuth
+    private val firebaseAuth: FirebaseAuth
 ) : ViewModel() {
-    private val _userSignInStatus: MutableStateFlow<Resource<String>> =
-        MutableStateFlow(Resource.Success(EMPTY_ID))
-    val userSignInStatus: StateFlow<Resource<String>> = _userSignInStatus
+    private val _userSignInStatus: MutableStateFlow<LoginStatus> =
+        MutableStateFlow(LoginStatus.IsNotAuthorized)
+    val userSignInStatus: StateFlow<LoginStatus> = _userSignInStatus
+    private val userLoggedIn: Boolean
+        get() = firebaseAuth.currentUser?.uid.isNullOrEmpty()
 
     init {
         // проверка на авторизацию для того, чтобы сразу "перенести" авторизованного пользователя
         // в фрагмент просмотра объявлений
-        val userId = firebaseAuth.currentUser?.uid
-        if (userId != null) {
-            _userSignInStatus.value = Resource.Success(userId)
+        if (!userLoggedIn) {
+            _userSignInStatus.value = LoginStatus.Success
         }
     }
 
     // лоигин пользователя
-    fun login(email: String, pass: String) {
-        // проверка заполнености формы логина
-        if (email.isEmpty() || pass.isEmpty()) {
-            _userSignInStatus.value = Resource.Error(EMPTY_FIELDS)
-        } else {
-            _userSignInStatus.value = Resource.Loading()
-            viewModelScope.launch(dispatcher) {
-                val loginResult = loginUseCase.execute(email, pass)
-                _userSignInStatus.value = loginResult
+    fun login(email: String, pass: String) = viewModelScope.launch(dispatcher) {
+        when {
+            email.isEmpty() -> _userSignInStatus.value = LoginStatus.EmptyEmail
+            pass.isEmpty() -> _userSignInStatus.value = LoginStatus.EmptyPassword
+            else -> {
+                _userSignInStatus.value = LoginStatus.Loading
+                executeLogin(email, pass)
             }
+        }
+    }
+
+    private suspend fun executeLogin(email: String, pass: String) {
+        when (loginUseCase.execute(email, pass)) {
+            is Resource.Success -> _userSignInStatus.value = LoginStatus.Success
+            is Resource.Error -> _userSignInStatus.value = LoginStatus.Error
         }
     }
 
     companion object {
         const val EMPTY_ID = ""
-        const val EMPTY_FIELDS = "All fields must be filled"
     }
 }
