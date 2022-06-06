@@ -4,71 +4,90 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.android.domain.common.Resource
 import com.example.android.domain.entities.UserModel
-import com.example.android.domain.usecases.registration.RegisterUserUseCase
+import com.example.android.domain.usecases.registration.RegisterUseCase
 import com.example.android.domain.usecases.user.AddUserToDBUseCase
-import com.example.android.pets_finder.login.LoginViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import javax.inject.Inject
 
+/**
+ * ViewModel to aid with registering a user in via the [RegistrationFragment].
+ */
 class RegistrationViewModel @Inject constructor(
-    private val registerUserUseCase: RegisterUserUseCase,
+    private val registerUseCase: RegisterUseCase,
     private val addUserToDBUseCase: AddUserToDBUseCase,
     private val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
-    private val _userSignUpStatus: MutableStateFlow<Resource<String>> =
-        MutableStateFlow(Resource.Success(LoginViewModel.EMPTY_ID))
-    val userSignUpStatus: StateFlow<Resource<String>> = _userSignUpStatus
+    private val _userSignUpStatus: MutableStateFlow<RegistrationStatus> =
+        MutableStateFlow(RegistrationStatus.Initialization)
+    val userSignUpStatus: StateFlow<RegistrationStatus> = _userSignUpStatus
+    private val mutex = Mutex()
 
-    // метод регистрации пользователя
-    fun signUpUser(
+    /**
+     * Send a register request,
+     * with the credentials of [email], [userName], [userPhoneNumber] and [password].
+     *
+     * The result of this operation will be posted to [userSignUpStatus].
+     */
+    fun register(
         email: String,
         userName: String,
         userPhoneNumber: String,
         password: String,
         confirmPassword: String
-    ) {
-        // проверка на зполненость полей формы регистрации
-        if (email.isBlank() || password.isBlank() || confirmPassword.isBlank() ||
-            userName.isBlank() || userPhoneNumber.isBlank()
-        ) {
-            _userSignUpStatus.value = Resource.Error(EMPTY_FIELDS)
-        } else {
-            // проверка совпадения паролей
-            if (password != confirmPassword) {
-                _userSignUpStatus.value =
-                    Resource.Error(PASS_AND_CONF_PASS_DO_NOT_MATCH)
-            } else {
-                _userSignUpStatus.value = Resource.Loading()
-                viewModelScope.launch(dispatcher) {
-                    // регистрация пользователя
-                    val registerResult =
-                        registerUserUseCase.execute(email, password)
-                    if (registerResult.data != null) {
-                        val user = UserModel(
-                            id = registerResult.data.toString(),
-                            userName = userName,
-                            userPhoneNumber = userPhoneNumber,
-                            userEmail = email
-                        )
-                        // добавления пользователя в бд
-                        val addUserToBDResult = addUserToDBUseCase.execute(user)
-                        _userSignUpStatus.value =
-                            Resource.Success(addUserToBDResult.data.toString())
-                    } else {
-                        _userSignUpStatus.value = Resource.Error(FAILED)
-                    }
-                }
+    ) = viewModelScope.launch(dispatcher) {
+        when {
+            email.isEmpty() -> _userSignUpStatus.value =
+                RegistrationStatus.EmptyEmail
+            userName.isEmpty() -> _userSignUpStatus.value =
+                RegistrationStatus.EmptyUserName
+            userPhoneNumber.isEmpty() -> _userSignUpStatus.value =
+                RegistrationStatus.EmptyPhoneNumber
+            password.isEmpty() -> _userSignUpStatus.value =
+                RegistrationStatus.EmptyPassword
+            confirmPassword.isEmpty() -> _userSignUpStatus.value =
+                RegistrationStatus.EmptyConfirmPassword
+            password != confirmPassword -> _userSignUpStatus.value =
+                RegistrationStatus.PassAndConfDoNotMatch
+            else -> {
+                _userSignUpStatus.value = RegistrationStatus.Loading
+                executeRegistration(email, userName, userPhoneNumber, password)
             }
         }
     }
 
-    companion object {
-        const val EMPTY_ID = ""
-        const val EMPTY_FIELDS = "All fields must be filled"
-        const val PASS_AND_CONF_PASS_DO_NOT_MATCH = "Password and Confirm Password do not match"
-        const val FAILED = "Failed"
+    private suspend fun executeRegistration(
+        email: String,
+        userName: String,
+        userPhoneNumber: String,
+        password: String
+    ) {
+        when (val registerResult = mutex.withLock {
+            registerUseCase.execute(email, password)
+        }
+        ) {
+            is Resource.Success -> {
+                addUserToBd(
+                    UserModel(
+                        id = registerResult.data.toString(),
+                        userName = userName,
+                        userPhoneNumber = userPhoneNumber,
+                        userEmail = email
+                    )
+                )
+            }
+            is Resource.Error -> _userSignUpStatus.value = RegistrationStatus.Error
+        }
+    }
+
+    private suspend fun addUserToBd(user: UserModel) {
+        when (mutex.withLock { addUserToDBUseCase.execute(user) }) {
+            is Resource.Success -> _userSignUpStatus.value = RegistrationStatus.Success
+            is Resource.Error -> _userSignUpStatus.value = RegistrationStatus.Error
+        }
     }
 }
