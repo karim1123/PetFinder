@@ -23,6 +23,9 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * Fragment to allow the user to enter their login details for PetFinder.
+ */
 class LoginFragment : Fragment() {
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
@@ -58,7 +61,7 @@ class LoginFragment : Fragment() {
         (activity as AppCompatActivity).supportActionBar?.title =
             getString(R.string.login_fragment_title)
 
-        binding.etEmailAddress.addTextChangedListener { binding.usernameLayout.error = EMPTY_ERROR }
+        binding.etEmailAddress.addTextChangedListener { binding.emailLayout.error = EMPTY_ERROR }
         binding.etPassword.addTextChangedListener { binding.passwordLayout.error = EMPTY_ERROR }
 
         lifecycleScope.launch {
@@ -69,14 +72,12 @@ class LoginFragment : Fragment() {
             }
         }
 
-        // обработка нажатия кнопки для логина
         binding.btnLogin.setOnClickListener {
             loginViewModel.login(
                 binding.etEmailAddress.text.toString(),
                 binding.etPassword.text.toString()
             )
         }
-        // переход в фрагмент регистрации
         binding.tvRedirectSignUp.setOnClickListener {
             findNavController().navigate(R.id.action_loginFragment_to_registrationFragment)
         }
@@ -97,7 +98,7 @@ class LoginFragment : Fragment() {
 
         when (uiState) {
             LoginStatus.EmptyEmail ->
-                binding.usernameLayout.error = getString(R.string.empty_email)
+                binding.emailLayout.error = getString(R.string.empty_email)
             LoginStatus.EmptyPassword ->
                 binding.passwordLayout.error = getString(R.string.empty_password)
             LoginStatus.Error -> showSnackbar(R.string.login_error_generic)
@@ -111,7 +112,7 @@ class LoginFragment : Fragment() {
     }
 
     private fun showSnackbar(@StringRes id: Int) =
-        Snackbar.make(binding.detailsLayout, id, Snackbar.LENGTH_LONG).show()
+        Snackbar.make(binding.loginLayout, id, Snackbar.LENGTH_LONG).show()
 
     private fun setLoading() {
         binding.progressBar.isVisible = true

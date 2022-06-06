@@ -3,9 +3,9 @@ package com.example.android.domain.usecases.registration
 import com.example.android.domain.common.Resource
 import com.example.android.domain.repositories.AuthenticationRepository
 
-class RegisterUserUseCaseImpl(
+class RegisterUseCaseImpl(
     private val authenticationRepository: AuthenticationRepository
-) : RegisterUserUseCase {
+) : RegisterUseCase {
     override suspend fun execute(email: String, password: String): Resource<String> {
         return authenticationRepository.register(email, password)
     }

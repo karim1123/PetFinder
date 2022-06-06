@@ -11,6 +11,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * ViewModel to aid with logging a user in via the [LoginFragment].
+ */
 class LoginViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
     private val dispatcher: CoroutineDispatcher,
@@ -19,25 +22,25 @@ class LoginViewModel @Inject constructor(
     private val _userSignInStatus: MutableStateFlow<LoginStatus> =
         MutableStateFlow(LoginStatus.IsNotAuthorized)
     val userSignInStatus: StateFlow<LoginStatus> = _userSignInStatus
-    private val userLoggedIn: Boolean
-        get() = firebaseAuth.currentUser?.uid.isNullOrEmpty()
 
     init {
-        // проверка на авторизацию для того, чтобы сразу "перенести" авторизованного пользователя
-        // в фрагмент просмотра объявлений
-        if (!userLoggedIn) {
+        if (!isUserAuthorized()) {
             _userSignInStatus.value = LoginStatus.Success
         }
     }
 
-    // лоигин пользователя
-    fun login(email: String, pass: String) = viewModelScope.launch(dispatcher) {
+    /**
+     * Send a login request, with the credentials of [email] and [password].
+     *
+     * The result of this operation will be posted to [userSignInStatus].
+     */
+    fun login(email: String, password: String) = viewModelScope.launch(dispatcher) {
         when {
             email.isEmpty() -> _userSignInStatus.value = LoginStatus.EmptyEmail
-            pass.isEmpty() -> _userSignInStatus.value = LoginStatus.EmptyPassword
+            password.isEmpty() -> _userSignInStatus.value = LoginStatus.EmptyPassword
             else -> {
                 _userSignInStatus.value = LoginStatus.Loading
-                executeLogin(email, pass)
+                executeLogin(email, password)
             }
         }
     }
@@ -49,7 +52,8 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    companion object {
-        const val EMPTY_ID = ""
-    }
+    /**
+     * Check is user authorized.
+     */
+    private fun isUserAuthorized() = firebaseAuth.currentUser?.uid.isNullOrEmpty()
 }

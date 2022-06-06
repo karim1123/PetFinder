@@ -37,6 +37,7 @@
     <string name="user_added_to_db">User added to db</string>
     <string name="db_error">DB error</string>
     <string name="successfully_logged_In">Successfully Logged In</string>
+    <string name="successfully_registered">Successfully Registered</string>
     <string name="log_in_failed">Log In failed</string>
     <string name="advertisement_successfully_saved">Advertisement successfully saved</string>
     <string name="failed">Failed</string>
@@ -75,8 +76,12 @@
     <string name="address_not_selected">Address not selected</string>
     <string name="show_advertisements_on_map">show advertisements on map</string>
     <string name="empty_email">Empty email not allowed</string>
+    <string name="empty_user_name">Empty user name not allowed</string>
+    <string name="empty_phone_number">Empty phone number allowed</string>
     <string name="empty_password">Empty password not allowed</string>
+    <string name="empty_confirm_password">Empty confirm password not allowed</string>
     <string name="login_error_generic">Error trying to login, please try again</string>
+    <string name="register_error_generic">Error trying to register, please try again</string>
 
     <string-array name="advertisement_list_tabs_name">
         <item>Missing pets</item>

@@ -36,7 +36,7 @@ class LoginViewModelTests {
         val dispatcher = StandardTestDispatcher(testScheduler)
         val loginUseCase = mockk<LoginUseCaseImpl>()
         val auth = mockk<FirebaseAuth> {
-            coEvery { currentUser?.uid } returns "test"
+            coEvery { currentUser?.uid } returns ID
         }
 
         val loginViewModel = LoginViewModel(
@@ -63,7 +63,7 @@ class LoginViewModelTests {
             firebaseAuth = auth
         )
 
-        loginViewModel.login("", "password")
+        loginViewModel.login(EMPTY_STRING, PASSWORD)
 
         loginViewModel.userSignInStatus.test {
             assertEquals(LoginStatus.IsNotAuthorized, awaitItem())
@@ -85,7 +85,7 @@ class LoginViewModelTests {
             firebaseAuth = auth
         )
 
-        loginViewModel.login("email", "")
+        loginViewModel.login(EMAIL, EMPTY_STRING)
 
         loginViewModel.userSignInStatus.test {
             assertEquals(LoginStatus.IsNotAuthorized, awaitItem())
@@ -97,7 +97,7 @@ class LoginViewModelTests {
     fun `login failure produces LoginStatus#Error`() = runTest {
         val dispatcher = StandardTestDispatcher(testScheduler)
         val loginUseCase = mockk<LoginUseCaseImpl> {
-            coEvery { execute(any(), any()) } returns Resource.Error("error")
+            coEvery { execute(any(), any()) } returns Resource.Error(ERROR)
         }
         val auth = mockk<FirebaseAuth> {
             coEvery { currentUser?.uid } returns null
@@ -109,7 +109,7 @@ class LoginViewModelTests {
             firebaseAuth = auth
         )
 
-        loginViewModel.login("email", "pass")
+        loginViewModel.login(EMAIL, PASSWORD)
 
         loginViewModel.userSignInStatus.test {
             assertEquals(LoginStatus.IsNotAuthorized, awaitItem())
@@ -122,7 +122,7 @@ class LoginViewModelTests {
     fun `login success produces LoginStatus#Success`() = runTest {
         val dispatcher = StandardTestDispatcher(testScheduler)
         val loginUseCase = mockk<LoginUseCaseImpl> {
-            coEvery { execute(any(), any()) } returns Resource.Success("test")
+            coEvery { execute(any(), any()) } returns Resource.Success(ID)
         }
         val auth = mockk<FirebaseAuth> {
             coEvery { currentUser?.uid } returns null
@@ -134,12 +134,20 @@ class LoginViewModelTests {
             firebaseAuth = auth
         )
 
-        loginViewModel.login("email", "pass")
+        loginViewModel.login(EMAIL, PASSWORD)
 
         loginViewModel.userSignInStatus.test {
             assertEquals(LoginStatus.IsNotAuthorized, awaitItem())
             assertEquals(LoginStatus.Loading, awaitItem())
             assertEquals(LoginStatus.Success, awaitItem())
         }
+    }
+
+    companion object{
+        private const val EMPTY_STRING = ""
+        private const val ID = "test id"
+        private const val ERROR = "error"
+        private const val EMAIL = "email"
+        private const val PASSWORD = "password"
     }
 }
